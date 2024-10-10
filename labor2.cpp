@@ -4,81 +4,176 @@
 #include "stdafx.h"
 #include <stdlib.h>
 #include <time.h>
+#include <locale.h>
 
 
+void shell(int *items, int count)
+{
+
+  int i, j, gap, k;
+  int x, a[5];
+
+  a[0]=9; a[1]=5; a[2]=3; a[3]=2; a[4]=1;
+
+  for(k=0; k < 5; k++) {
+    gap = a[k];
+    for(i=gap; i < count; ++i) {
+      x = items[i];
+      for(j=i-gap; (x < items[j]) && (j >= 0); j=j-gap)
+        items[j+gap] = items[j];
+      items[j+gap] = x;
+    }
+  }
+}
+
+void qs(int *items, int left, int right) //вызов функции: qs(items, 0, count-1);
+{
+  int i, j;
+  int x, y;
+
+
+
+  i = left; j = right;
+
+  /* выбор компаранда */
+  x = items[(left+right)/2];
+  
+  do {
+    while((items[i] < x) && (i < right)) i++;
+    while((x < items[j]) && (j > left)) j--;
+
+    if(i <= j) {
+      y = items[i];
+      items[i] = items[j];
+      items[j] = y;
+      i++; j--;
+    }
+  } while(i <= j);
+
+  if(left < j) qs(items, left, j);
+  if(i < right) qs(items, i, right);
+}
+
+int compare(const void * x1, const void * x2)
+{
+  return ( *(int*)x1 - *(int*)x2 );
+}
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	int n = 50000;
+	int arr[50000];
+	float time;
 
- setvbuf(stdin, NULL, _IONBF, 0);
- setvbuf(stdout, NULL, _IONBF, 0);
-
- clock_t start = clock(), end; // объявляем переменные для определения времени выполнения
-
- int i=0, j=0, r, n;
- int elem_c;
- scanf("%d", &n);
- int** a = (int**) malloc(n * sizeof(int*));
- for(int i = 0; i < n; i++)
- {
-	 a[i] = (int*) malloc(n * sizeof(int));
- }
-
- int** b = (int**) malloc(n * sizeof(int*));
- for(int i = 0; i < n; i++)
- {
-	 b[i] = (int*) malloc(n * sizeof(int));
- }
-
- int** c = (int**) malloc(n * sizeof(int*));
- for(int i = 0; i < n; i++)
- {
-	 c[i] = (int*) malloc(n * sizeof(int));
- }
+	setlocale(LC_ALL, "Rus");
+	printf("Набор случайных чисел\n");
+	for(int i = 0;i<n;i++){//случайные числа
+		arr[i] = rand()%10;
+	}
+	clock_t start = clock();
+	shell(arr, n);
+	time = (float(clock())-start)/float(CLOCKS_PER_SEC);
+	printf("shell: %f\n", time);
 
 
- srand(time(NULL)); // инициализируем параметры генератора случайных чисел
- while(i<n)
- {
-  while(j<n)
-  {
-   a[i][j]=rand()% 100 + 1; // заполняем массив случайными числами
-   j++;
-  }
-  i++;
- }
- srand(time(NULL)); // инициализируем параметры генератора случайных чисел
- i=0; j=0;
- while(i<n)
- {
-  while(j<n)
-  {
-   b[i][j]=rand()% 100 + 1; // заполняем массив случайными числами
-   j++;
-  }
-  i++;
- }
+	for(int i = 0;i<n;i++){
+		arr[i] = rand()%10;
+	}
+	start = clock();
+	qs(arr, 0, n-1);
+	time = (float(clock())-start)/float(CLOCKS_PER_SEC);
+	printf("qs: %f\n", time);
 
- for(i=0;i<n;i++)
- {
-  for(j=0;j<n;j++)
-  {
-   elem_c=0;
-   for(r=0;r<n;r++)
-   {
-    elem_c=elem_c+a[i][r]*b[r][j];
-    c[i][j]=elem_c;
-   }
-  }
- }
 
-float t = (float(clock())-start)/float(CLOCKS_PER_SEC);
+	for(int i = 0;i<n;i++){
+		arr[i] = rand()%10;
+	}
+	start = clock();
+	qsort(arr, n,sizeof(int),compare);
+	time = (float(clock())-start)/float(CLOCKS_PER_SEC);
+	printf("qsort: %f\n", time);
 
-printf("%f", t);
+	printf("\nНабор возрастающиx чисел\n");
+	for(int i = 0;i<n;i++){//возрастающий набор
+		arr[i] = i;
+	}
+	start = clock();
+	shell(arr, n);
+	time = (float(clock())-start)/float(CLOCKS_PER_SEC);
+	printf("shell: %f\n", time);
 
-getchar();
-getchar();
 
+	for(int i = 0;i<n;i++){
+		arr[i] = i;
+	}
+	start = clock();
+	qs(arr, 0, n-1);
+	time = (float(clock())-start)/float(CLOCKS_PER_SEC);
+	printf("qs: %f\n", time);
+
+
+	for(int i = 0;i<n;i++){
+		arr[i] = i;
+	}
+	start = clock();
+	qsort(arr, n,sizeof(int),compare);
+	time = (float(clock())-start)/float(CLOCKS_PER_SEC);
+	printf("qsort: %f\n", time);
+
+	printf("\nНабор убывающиx чисел\n");
+	for(int i = 0;i<n;i++){//убывающий набор
+		arr[i] = n - i;
+	}
+	start = clock();
+	shell(arr, n);
+	time = (float(clock())-start)/float(CLOCKS_PER_SEC);
+	printf("shell: %f\n", time);
+
+
+	for(int i = 0;i<n;i++){
+		arr[i] = n - i;
+	}
+	start = clock();
+	qs(arr, 0, n-1);
+	time = (float(clock())-start)/float(CLOCKS_PER_SEC);
+	printf("qs: %f\n", time);
+
+
+	for(int i = 0;i<n;i++){
+		arr[i] = n - i;
+	}
+	start = clock();
+	qsort(arr, n,sizeof(int),compare);
+	time = (float(clock())-start)/float(CLOCKS_PER_SEC);
+	printf("qsort: %f\n", time);
+
+	printf("\nЛевая половина массива возрастает, а правая убывает\n");
+	for(int i = 0;i<n;i++){//левая половина возрастает, а правая убывает
+		if(i<n/2){
+			arr[i] = i;
+		}
+		else arr[i] = n - i;
+	}
+	start = clock();
+	shell(arr, n);
+	time = (float(clock())-start)/float(CLOCKS_PER_SEC);
+	printf("shell: %f\n", time);
+
+	
+	printf("qs: Недостаточно памяти\n");
+
+	for(int i = 0;i<n;i++){
+		if(i<n/2){
+			arr[i] = i;
+		}
+		else arr[i] = n - i;
+	}
+	start = clock();
+	qsort(arr, n,sizeof(int),compare);
+	time = (float(clock())-start)/float(CLOCKS_PER_SEC);
+	printf("qsort: %f\n", time);
+
+	getchar();
 	return 0;
 }
 
